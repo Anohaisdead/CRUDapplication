@@ -1,11 +1,11 @@
 package web.model;
 
-
-import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+
+import javax.persistence.*;
 
 @NoArgsConstructor
 @Data

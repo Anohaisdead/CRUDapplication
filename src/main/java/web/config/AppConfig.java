@@ -4,15 +4,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.sql.DataSource;
@@ -23,6 +22,7 @@ import java.util.Properties;
 @EnableWebMvc
 @ComponentScan(basePackages = "web")
 @PropertySource("classpath:db.properties")
+@EnableTransactionManagement
 public class AppConfig {
 
     private final Environment env;
@@ -32,51 +32,34 @@ public class AppConfig {
     }
 
     @Bean
-    public static PropertySourcesPlaceholderConfigurer propertyConfig() {
-        return new PropertySourcesPlaceholderConfigurer();
-    }
-
-
-    @Bean
     public DataSource getDataSource() {
-        System.out.println("Driver: " + env.getProperty("db.driver"));
-        System.out.println("URL: " + env.getProperty("db.url"));
-        System.out.println("Username: " + env.getProperty("db.username"));
-        System.out.println("Password: " + env.getProperty("db.password"));
-
-        DriverManagerDataSource ds = new DriverManagerDataSource();
-        ds.setDriverClassName(Objects.requireNonNull(env.getProperty("db.driver")));
-        ds.setUrl(env.getProperty("db.url"));
-        ds.setUsername(env.getProperty("db.username"));
-        ds.setPassword(env.getProperty("db.password"));
-        return ds;
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(Objects.requireNonNull(env.getProperty("db.driver")));
+        dataSource.setUrl(env.getProperty("db.url"));
+        dataSource.setUsername(env.getProperty("db.username"));
+        dataSource.setPassword(env.getProperty("db.password"));
+        return dataSource;
     }
-
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(getDataSource());
-        emf.setPackagesToScan("web.model");
-        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        emf.setJpaVendorAdapter(vendorAdapter);
+        emf.setPackagesToScan("web.model"); // Замените на ваш пакет с Entity-классами
+        emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         emf.setJpaProperties(hibernateProperties());
         return emf;
     }
 
-    @Bean
-    public Properties hibernateProperties() {
-        System.out.println("hibernate.show_sql: " + env.getProperty("hibernate.show_sql"));
-        System.out.println("hibernate.hbm2ddl.auto: " + env.getProperty("hibernate.hbm2ddl.auto"));
-        System.out.println("hibernate.dialect: " + env.getProperty("hibernate.dialect"));
 
-        Properties p = new Properties();
-        p.put("hibernate.show_sql", env.getProperty("hibernate.show_sql"));
-        p.put("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
-        p.put("hibernate.dialect", env.getProperty("hibernate.dialect"));
-        return p;
+
+    private Properties hibernateProperties() {
+        Properties properties = new Properties();
+        properties.setProperty("hibernate.dialect", env.getProperty("hibernate.dialect"));
+        properties.setProperty("hibernate.show_sql", env.getProperty("hibernate.show_sql"));
+        properties.setProperty("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
+        return properties;
     }
-
 
     @Bean
     public PlatformTransactionManager transactionManager() {
@@ -86,7 +69,7 @@ public class AppConfig {
     }
 
     @Bean
-    public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
+    public PersistenceExceptionTranslationPostProcessor postProcessor() {
         return new PersistenceExceptionTranslationPostProcessor();
     }
 }

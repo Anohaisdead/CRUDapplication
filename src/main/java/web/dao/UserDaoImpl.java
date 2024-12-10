@@ -2,8 +2,8 @@ package web.dao;
 
 import web.model.User;
 import org.springframework.stereotype.Repository;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.EntityManager;
 import java.util.List;
 
 @Repository
@@ -30,15 +30,6 @@ public class UserDaoImpl implements UserDao {
         } else {
             entityManager.merge(user);
         }
-    }
-
-    @Override
-    public void updateUser(Long id, User updateUser) {
-        User upUser = getUserById(id);
-        upUser.setFirstName(updateUser.getFirstName());
-        upUser.setLastName(updateUser.getLastName());
-        upUser.setEmail(updateUser.getEmail());
-        entityManager.merge(upUser);
     }
 
     @Override
