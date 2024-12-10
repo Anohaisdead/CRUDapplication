@@ -10,14 +10,16 @@
     <tr>
         <th>ID</th>
         <th>Name</th>
-        <th>Actions</th>
+        <th>lastName</th>
+        <th>email</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="user : ${users}">
         <td th:text="${user.id}"></td>
-        <td th:text="${user.name}"></td>
-        <td
+        <td th:text="${user.firstName}"></td>
+        <td th:text="${user.lastName}"></td>
+        <td th:text="${user.email}"></td>
         <td>
             <a th:href="@{/users/edit/{id}(id=${user.id})}">Edit</a>
             <a th:href="@{/users/delete/{id}(id=${user.id})}">Delete</a>
